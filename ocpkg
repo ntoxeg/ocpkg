@@ -631,7 +631,7 @@ install_opencog_github_repo() {
   cd /tmp/
   # cleaning up remnants from previous install failures, if any.
   rm -rf master.tar.gz* ${REPO}-master
-  wget https://github.com/singnet/${REPO}/archive/master.tar.gz
+  wget https://github.com/ntoxeg/${REPO}/archive/master.tar.gz
   tar -xvf master.tar.gz
   cd ${REPO}-master/
   mkdir build
