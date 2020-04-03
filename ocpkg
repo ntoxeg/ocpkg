@@ -132,6 +132,7 @@ PACKAGES_BUILD=" build-essential \
 		libicu-dev \
 		libbz2-dev \
 		python3-dev \
+    python3-wheel \
 		python3-setuptools \
 		python3-nose \
 		libboost-date-time-dev \
@@ -191,7 +192,7 @@ PACKAGES_DOC="
 		libpango1.0-doc \
 		libgtk-3-doc \
 		texlive-latex-base-doc \
-		python-doc \
+		python3-doc \
 		devhelp-common \
 		texlive-doc-base \
 		doxygen \
@@ -720,7 +721,7 @@ cd /tmp
 
 # For sentiment analysis
 # TODO: update depending on https://github.com/opencog/opencog/issues/2285
-sudo pip3 install -U pyyaml nltk Flask flask-restful flask-restful-swagger flask-cors
+sudo python3 -m pip install -U pyyaml nltk Flask flask-restful flask-restful-swagger flask-cors
 sudo python3 -m nltk.downloader -d /usr/local/share/nltk_data punkt averaged_perceptron_tagger
 rm -f requirements.txt*
 cd $CURRENT_DIR
