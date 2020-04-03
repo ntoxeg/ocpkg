@@ -115,7 +115,6 @@ PACKAGES_FETCH="
 		git \
 		curl \
 		wget \
-    ca-certificates \
 			"
 #bzr-rewrite \
 
@@ -897,11 +896,17 @@ install_link_grammar() {
 
   cd /tmp/
   # cleaning up remnants from previous install failures, if any.
-  rm -rf link-grammar-5.*/
-
-  wget http://www.abisource.com/downloads/link-grammar/5.8.0/link-grammar-5.8.0.tar.gz
-  tar -zxf link-grammar-5*.tar.gz
-
+  # rm -rf link-grammar-5.*/
+  # if [ $# -eq 1 ]; then
+  #   wget http://www.abisource.com/downloads/link-grammar/${1}/link-grammar-${1}.tar.gz
+  #   tar -zxf link-grammar-5*.tar.gz
+  # else
+  #   wget -r --no-parent -nH --cut-dirs=2 \
+  #     http://www.abisource.com/downloads/link-grammar/current/
+  #   tar -zxf current/link-grammar-5*.tar.gz
+  #   rm -r current
+  # fi
+  tar -zxf link-grammar-5.*.tar.gz
   cd link-grammar-5.*/
   mkdir build
   cd build
