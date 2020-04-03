@@ -290,14 +290,13 @@ PACKAGES_EXDEV="
 		fakeroot \
 		gettext \
 		gdb \
-		g++-4.6 \
-		gcc-4.6 \
+		g++-10\
+		gcc-10 \
 		krb5-multidev \
 		libc6-dev \
 		libdpkg-perl \
 		libdpkg-perl \
 		libgcrypt11-dev \
-		libglade2-0 \
 		libgnutls-dev \
 		libgpg-error-dev \
 		libgssrpc4 \
@@ -310,7 +309,7 @@ PACKAGES_EXDEV="
 		libkrb5-dev \
 		libldap2-dev \
 		libltdl-dev \
-		libstdc++6-4.6-dev \
+		libstdc++-10-dev \
 		libtasn1-3-dev \
 		libtimedate-perl \
 		libtool \
@@ -320,13 +319,11 @@ PACKAGES_EXDEV="
 		manpages-dev \
 		m4 \
 		patch \
-		python-glade2 \
-		python-tk \
+		python3-tk \
 		tcl8.5 \
 		tk8.5 \
 		ttf-lyx \
 		zlib1g-dev \
-		python-bzrlib \
 		linux-headers-generic \
 		"
 
@@ -723,7 +720,7 @@ cd /tmp
 
 # For sentiment analysis
 # TODO: update depending on https://github.com/opencog/opencog/issues/2285
-sudo pip install -U pyyaml nltk Flask flask-restful flask-restful-swagger flask-cors
+sudo pip3 install -U pyyaml nltk Flask flask-restful flask-restful-swagger flask-cors
 sudo python3 -m nltk.downloader -d /usr/local/share/nltk_data punkt averaged_perceptron_tagger
 rm -f requirements.txt*
 cd $CURRENT_DIR
@@ -1004,8 +1001,8 @@ PYTHON_PATH=$(readlink -f /usr/bin/python3)
 # Update or install python tools
 sudo python3 -m pip install -U pip
 # See https://github.com/opencog/atomspace/issues/2213 for why ~=0.23.5 is
-# choosen.
-sudo python3 -m pip install -U cython~=0.23.5
+# chosen.
+sudo python3 -m pip install -U cython
 
 # Install guile >2.2 also install bdwgc for language-learning
 install_guile
