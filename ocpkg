@@ -115,6 +115,7 @@ PACKAGES_FETCH="
 		git \
 		curl \
 		wget \
+    ca-certificates \
 			"
 		#bzr-rewrite \
 
