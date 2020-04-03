@@ -576,12 +576,6 @@ for REPO in $REPOSITORIES ; do
   sudo apt-add-repository -y $REPO
 done
 
-# Add cmake repository. See https://apt.kitware.com/ for details.
-if [[ "$UBUNTU_VERSION" = "\"18.04\"" ]]; then
-  wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
-  echo "deb https://apt.kitware.com/ubuntu/ bionic main" | sudo tee '/etc/apt/sources.list.d/cmake.list'
-fi
-
 sudo apt-get $QUIET --assume-yes update
 }
 
@@ -860,8 +854,11 @@ install_opencog_github_repo moses
 # Install Link-Grammar
 install_link_grammar(){
 MESSAGE="Installing Link-Grammar...." ; message
+
+MESSAGE="Setting TLS support to 1.0"; message
 sudo sed -i 's,^\(MinProtocol[ ]*=\).*,\1'TLSv1.0',g' /etc/ssl/openssl.cnf
 sudo sed -i 's,^\(CipherString[ ]*=\).*,\1'DEFAULT@SECLEVEL=1',g' /etc/ssl/openssl.cnf
+
 cd /tmp/
 # cleaning up remnants from previous install failures, if any.
 rm -rf link-grammar-5.*/
@@ -910,7 +907,7 @@ rm -rf ${_dir_name}*
 }
 
 install_guile(){
-if [[ "$UBUNTU_VERSION" = "\"18.04\"" ]]; then
+if [[ "$UBUNTU_VERSION" = "\"20.04\"" ]]; then
     sudo apt-get install -y --no-install-recommends guile-2.2-dev
 else
    install_bdwgc
