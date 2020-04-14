@@ -102,6 +102,10 @@ REPOSITORIES=""
 #       ppa:chris-lea/python-simplejson \
 #       ppa:gandelman-a/test-catalog \
 
+if [[ -z $GITHUB_NAME ]]; then
+  GITHUB_NAME="singnet"
+fi
+
 PACKAGES_TOOLS="
 		squashfs-tools \
 		genisoimage \
@@ -439,6 +443,9 @@ else
   done
 fi
 
+options = $(getopt -l "name:" "--name=opencog")
+eval set -- "$options"
+
 shift $((OPTIND - 1))
 
 message() {
@@ -626,18 +633,22 @@ install_admin() {
 # Install given opencog github repo
 install_opencog_github_repo() {
   local REPO="$1"
-  MESSAGE="Installing ${REPO}...."
+  MESSAGE="Installing ${REPO} from ${GITHUB_NAME}..."
   message
   cd /tmp/
   # cleaning up remnants from previous install failures, if any.
   rm -rf master.tar.gz* ${REPO}-master
-  wget https://github.com/ntoxeg/${REPO}/archive/master.tar.gz
+  wget https://github.com/${GITHUB_NAME}/${REPO}/archive/master.tar.gz
   tar -xvf master.tar.gz
   cd ${REPO}-master/
   mkdir build
   cd build/
   cmake ..
-  make -j$(nproc)
+  if ! $REPO == "ure"; then
+    make -j$(nproc)
+  else
+    make # for some reason URE compilation breaks with multiple jobs
+  fi
   sudo make install
   sudo ldconfig
   cd /tmp/
