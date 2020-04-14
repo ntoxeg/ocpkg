@@ -641,7 +641,7 @@ install_opencog_github_repo() {
   mkdir build
   cd build/
   cmake ..
-  if ! $REPO == "ure"; then
+  if [ $REPO != "ure" ]; then
     make -j$(nproc)
   else
     make # for some reason URE compilation breaks with multiple jobs
