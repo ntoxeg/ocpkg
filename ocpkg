@@ -443,9 +443,6 @@ else
   done
 fi
 
-options = $(getopt -l "name:" "--name=opencog")
-eval set -- "$options"
-
 shift $((OPTIND - 1))
 
 message() {
