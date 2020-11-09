@@ -177,6 +177,12 @@ PACKAGES_BUILD=" build-essential \
 		libreadline-dev \
 		libcpprest \
 		libltdl-dev \
+		m4 \
+		autoconf-archive \
+		autoconf automake \
+		libtool \
+		swig \
+		flex \
 		"
 #liblua5.1-0-dev \
 #libxmlrpc-c3-dev \
@@ -335,41 +341,41 @@ PACKAGES_EXDEV="
 # SECTION 2: Command line option handling
 
 usage() {
-  if [ "$SELF_NAME" == "$TOOL_NAME" ]; then
-    echo "Usage: $SELF_NAME OPTION"
-    echo " -r Add software repositories"
-    echo " -d Install base/system build dependencies"
-    echo " -p Install python build dependencies"
-    echo " -s Install haskell build dependencies in user space. Don't use sudo"
-    echo " -i Install build-job artifacts"
-    echo " -c Install Cogutil"
-    echo " -a Install AtomSpace"
-    echo " -f Install CogServer"
-    echo " -o Install OpenCog"
-    echo " -n Install notebook"
-    echo " -l {default|java} For installing Link Grammar with java binding '-l java' else '-l default'"
-    echo " -m Install MOSES"
-    echo " -g Install Guile $GUILEVERSION"
-    echo " -b Build source code in git worktree found @ $PWD"
-    echo " -e Build examples in git worktree found @ $PWD"
-    echo " -t Run tests of source code in git worktree found @ $PWD"
-    echo " -j [jobs] override number of auto-detected make jobs"
-    echo " -w download data for the opencog repo"
-    echo " -v Verbose output for 'apt-get' commands"
-    echo " -h This help message"
-  else
-    echo "Usage: $SELF_NAME [OPTIONS] [PACKAGE-TYPE]"
-    echo "  PACKAGE-TYPES:"
-    for key in ${!PACKAGE_DESCRIPTION[@]}; do
-      echo "   " ${key} $'\t' "${PACKAGE_DESCRIPTION[$key]}"
-    done
-    echo "    (Live CD: Ubuntu ISO image ~700MB will be downloaded if none found.)"
-    echo "  OPTIONS:"
-    echo "    -i [filename]  ISO input  filename"
-    echo "    -o [filename]  ISO output filename"
-    echo "    -j [jobs]      override number of auto-detected make jobs"
-    echo "    -n             supress git updates"
-  fi
+if [ "$SELF_NAME" == "$TOOL_NAME" ] ; then
+  echo "Usage: $SELF_NAME OPTION"
+  echo " -r Add software repositories"
+  echo " -d Install base/system build dependencies"
+  echo " -p Install python build dependencies"
+  echo " -s Install haskell build dependencies in user space. Don't use sudo"
+  echo " -i Install build-job artifacts"
+  echo " -c Install Cogutil"
+  echo " -a Install AtomSpace"
+  echo " -f Install from opencog github repo. Pass the name of the repo as an argument"
+  echo " -o Install OpenCog"
+  echo " -n Install notebook"
+  echo " -l {default|java} For installing Link Grammar with java binding '-l java' else '-l default'"
+  echo " -m Install MOSES"
+  echo " -g Install Guile $GUILEVERSION"
+  echo " -b Build source code in git worktree found @ $PWD"
+  echo " -e Build examples in git worktree found @ $PWD"
+  echo " -t Run tests of source code in git worktree found @ $PWD"
+  echo " -j [jobs] override number of auto-detected make jobs"
+  echo " -w download data for the opencog repo"
+  echo " -v Verbose output for 'apt-get' commands"
+  echo " -h This help message"
+else
+  echo "Usage: $SELF_NAME [OPTIONS] [PACKAGE-TYPE]"
+  echo "  PACKAGE-TYPES:"
+  for key in ${!PACKAGE_DESCRIPTION[@]}; do
+    echo "   " ${key} $'\t' "${PACKAGE_DESCRIPTION[$key]}"
+  done
+  echo "    (Live CD: Ubuntu ISO image ~700MB will be downloaded if none found.)"
+  echo "  OPTIONS:"
+  echo "    -i [filename]  ISO input  filename"
+  echo "    -o [filename]  ISO output filename"
+  echo "    -j [jobs]      override number of auto-detected make jobs"
+  echo "    -n             supress git updates"
+fi
 }
 
 # TODO: change octool usage to 'octool project command' format. Where projects
@@ -379,42 +385,38 @@ usage() {
 
 if [ $# -eq 0 ]; then NO_ARGS=true; fi
 
-if [ "$SELF_NAME" == "$TOOL_NAME" ]; then
-  while getopts "abdegipcrstl:mhvj:own" flag; do
+if [ "$SELF_NAME" == "$TOOL_NAME" ] ; then
+  while getopts "abdef:gipcrstl:mhvj:own" flag ; do
     case $flag in
-    r) ADD_REPOSITORIES=true ;;
-    d) INSTALL_DEPENDENCIES=true ;; #base development packages
-    w) DOWNLOAD_DATA=true ;;
-    p) INSTALL_OPENCOG_PYTHON_PACKAGES=true ;;
-    c) INSTALL_COGUTIL=true ;;
-    a) INSTALL_ATOMSPACE=true ;;
-    f) INSTALL_COGSERVER=true ;;
-    o) INSTALL_OPENCOG=true ;;
-    l) if [ "$OPTARG" == "default" ]; then
-      INSTALL_LINK_GRAMMAR=true
-    elif [ "$OPTARG" == "java" ]; then
-      INSTALL_JAVA_LINK_GRAMMAR=true
-    else
-      MESSAGE="If you want java binding run '-l java' else '-l default'"
-      message
-      exit 1
-    fi ;;
-    m) INSTALL_MOSES=true ;;
-    n) INSTALL_NOTEBOOKS=true ;;
-    g) INSTALL_GUILE=true ;;
-    b) BUILD_SOURCE=true ;;
-    e) BUILD_EXAMPLES=true ;;
-    t) TEST_SOURCE=true ;;
-    v) unset QUIET ;;
-    j) MAKE_JOBS="$OPTARG" ;;
-    s) HASKELL_STACK_SETUP=true ;;
-    i) INSTALL_BUILD=true ;;
-    h) usage ;;
-    \?)
-      usage
-      exit 1
-      ;;
-    *) UNKNOWN_FLAGS=true ;;
+      r)	ADD_REPOSITORIES=true ;;
+      d)	INSTALL_DEPENDENCIES=true ;; #base development packages
+      w)	DOWNLOAD_DATA=true ;;
+      p)	INSTALL_OPENCOG_PYTHON_PACKAGES=true ;;
+      c)	INSTALL_COGUTIL=true ;;
+      a)	INSTALL_ATOMSPACE=true ;;
+      f)	INSTALL_FROM_REPO="$OPTARG" ;;
+      o)	INSTALL_OPENCOG=true ;;
+      l)	if [ "$OPTARG" == "default" ]; then
+        	  INSTALL_LINK_GRAMMAR=true
+        	elif [ "$OPTARG" == "java" ]; then
+        	  INSTALL_JAVA_LINK_GRAMMAR=true
+        	else
+        	  MESSAGE="If you want java binding run '-l java' else '-l default'"
+        	  message ; exit 1
+        	fi ;;
+      m)	INSTALL_MOSES=true ;;
+      n)        INSTALL_NOTEBOOKS=true;;
+      g)	INSTALL_GUILE=true ;;
+      b)	BUILD_SOURCE=true ;;
+      e)	BUILD_EXAMPLES=true ;;
+      t)	TEST_SOURCE=true ;;
+      v)	unset QUIET ;;
+      j)	MAKE_JOBS="$OPTARG" ;;
+      s)    HASKELL_STACK_SETUP=true;;
+      i)    INSTALL_BUILD=true ;;
+      h)	usage ;;
+      \?)	usage; exit 1 ;;
+      *)  UNKNOWN_FLAGS=true ;;
     esac
   done
 else
@@ -875,21 +877,17 @@ install_atomspace() {
   install_opencog_github_repo ure
 }
 
-# Install CogServer
-install_cogserver() {
-  install_opencog_github_repo cogserver
-}
-
 # Install OpenCog
-install_opencog() {
-  install_opencog_github_repo miner
-  install_opencog_github_repo learn
-  install_opencog_github_repo cogserver
-  install_opencog_github_repo attention
-  install_opencog_github_repo spacetime
-  install_opencog_github_repo pattern-index
-  install_opencog_github_repo visualization
-  install_opencog_github_repo opencog
+install_opencog(){
+install_opencog_github_repo pln
+install_opencog_github_repo miner
+install_opencog_github_repo cogserver
+install_opencog_github_repo attention
+install_opencog_github_repo spacetime
+install_opencog_github_repo pattern-index
+install_opencog_github_repo visualization
+install_opencog_github_repo opencog
+install_opencog_github_repo learn
 }
 
 # Install MOSES
@@ -898,61 +896,58 @@ install_moses() {
 }
 
 # Install Link-Grammar
-install_link_grammar() {
-  MESSAGE="Installing Link-Grammar...."
-  message
-
-  cd /tmp/
-  # cleaning up remnants from previous install failures, if any.
-  # rm -rf link-grammar-5.*/
-  # if [ $# -eq 1 ]; then
-  #   wget http://www.abisource.com/downloads/link-grammar/${1}/link-grammar-${1}.tar.gz
-  #   tar -zxf link-grammar-5*.tar.gz
-  # else
-  #   wget -r --no-parent -nH --cut-dirs=2 \
-  #     http://www.abisource.com/downloads/link-grammar/current/
-  #   tar -zxf current/link-grammar-5*.tar.gz
-  #   rm -r current
-  # fi
-  tar -zxf link-grammar-5.*.tar.gz
-  cd link-grammar-5.*/
-  mkdir build
-  cd build
-  if [ $INSTALL_JAVA_LINK_GRAMMAR ]; then
-    ../configure
-  else
-    ../configure --disable-java-bindings
-  fi
-  make -j$(nproc)
-  sudo make install
-  sudo ldconfig
-  cd /tmp/
-  rm -rf link-grammar-5.*/
-  cd $CURRENT_DIR
+install_link_grammar(){
+MESSAGE="Installing Link-Grammar...." ; message
+cd /tmp/
+# cleaning up remnants from previous install failures, if any.
+rm -rf link-grammar*/
+if [ $# -eq 1 ]; then
+  local _version=${1}
+else
+  local _version=$(git ls-remote -t \
+      https://github.com/opencog/link-grammar "link-grammar-5*" \
+      --sort=taggerdate | grep -v "\^"| tail -n 1 | cut -d "-" -f 3)
+fi
+wget https://github.com/opencog/link-grammar/archive/link-grammar-${_version}.tar.gz
+tar -zxf link-grammar-5*.tar.gz
+cd link-grammar-link-grammar-5.*/
+./autogen.sh --no-configure
+mkdir build
+cd build
+if [ $INSTALL_JAVA_LINK_GRAMMAR ]; then
+  ../configure
+else
+  ../configure --disable-java-bindings
+fi
+make -j$(nproc)
+sudo make install
+sudo ldconfig
+cd /tmp/
+rm -rf link-grammar*/
+cd $CURRENT_DIR
 }
 
-install_bdwgc() {
-  MESSAGE="Installing latest bdwgc ...."
-  message
-  local _version=$(curl https://github.com/ivmai/bdwgc/releases/latest |
-    cut -d "\"" -f 2 | cut -d "/" -f 8)
-  local _dir_name="gc-${_version:1}"
-  local _file_name="${_dir_name}.tar.gz"
-  cd /tmp/
-  rm -rf ${_dir_name}*
-  get_github_latest_release ivmai bdwgc ${_file_name}
-  tar -xvf ${_file_name}
-  cd ${_dir_name}
-  ./configure
-  make -j$(nproc)
-  sudo make install
-  sudo ldconfig
-  cd /tmp/
-  rm -rf ${_dir_name}*
+install_bdwgc(){
+MESSAGE="Installing latest bdwgc ...." ; message
+local _version=$(curl https://github.com/ivmai/bdwgc/releases/latest \
+    | cut -d "\"" -f 2 | cut -d "/" -f 8)
+local _dir_name="gc-${_version:1}"
+local _file_name="${_dir_name}.tar.gz"
+cd /tmp/
+rm -rf ${_dir_name}*
+get_github_latest_release ivmai bdwgc ${_file_name}
+tar -xvf ${_file_name}
+cd ${_dir_name}
+./configure
+make -j$(nproc)
+sudo make install
+sudo ldconfig
+cd /tmp/
+rm -rf ${_dir_name}*
 }
 
-install_guile() {
-  if [[ "$UBUNTU_VERSION" = "\"20.04\"" ]]; then
+install_guile(){
+if [[ "$UBUNTU_VERSION" = "\"18.04\"" ]]; then
     sudo apt-get install -y --no-install-recommends guile-2.2-dev
   else
     install_bdwgc
@@ -1015,17 +1010,16 @@ update_ccache_links() {
 
 # Install cxxtest for python3 co
 install_cxxtest() {
-  (
-    cd /tmp/ && rm -rf cxxtest* master.tar.gz
-    sudo python3 -m pip install ply
-    wget https://github.com/CxxTest/cxxtest/archive/master.tar.gz
-    tar -xvf master.tar.gz
-    cd cxxtest-master/python/
-    sudo python3 setup.py -v install
-    cd ..
-    sudo install -m 644 cxxtest/* -D -t /usr/include/cxxtest
-    rm -rf cxxtest* master.tar.gz
-  )
+  (cd /tmp/ && sudo rm -rf cxxtest* master.tar.gz
+  sudo python3 -m pip install ply
+  wget https://github.com/CxxTest/cxxtest/archive/master.tar.gz
+  tar -xvf master.tar.gz
+  cd cxxtest-master/python/
+  sudo python3 setup.py -v install
+  cd ..
+  sudo install -m 644  cxxtest/* -D -t /usr/include/cxxtest
+  cd ..
+  sudo rm -rf cxxtest* master.tar.gz)
 }
 
 # Install system dependencies
@@ -1034,28 +1028,26 @@ install_dependencies() {
   message
   if ! sudo apt-get $QUIET --no-upgrade --assume-yes --no-install-recommends install $PACKAGES_BUILD $PACKAGES_RUNTIME $PACKAGES_FETCH liboctomap-dev locales; then
     exit 1
-  fi
-  ensure_UTF_installed
+fi
+ensure_UTF_installed
 
-  # Update ccache links
-  update_ccache_links
+# Update ccache links
+update_ccache_links
 
-  # Install latest cxxtest
-  install_cxxtest
+# Install latest cxxtest
+install_cxxtest
 
-  # Configure python alternative. The priority is soo high just to ensure that
-  # python is always set.
-  PYTHON_PATH=$(readlink -f /usr/bin/python3)
-  #sudo update-alternatives --install /usr/bin/python python "$PYTHON_PATH" 1000
+# Configure python alternative. The priority is soo high just to ensure that
+# python is always set.
+PYTHON_PATH=$(readlink -f /usr/bin/python3)
+#sudo update-alternatives --install /usr/bin/python python "$PYTHON_PATH" 1000
 
-  # Update or install python tools
-  sudo python3 -m pip install -U pip
-  # See https://github.com/opencog/atomspace/issues/2213 for why ~=0.23.5 is
-  # chosen.
-  sudo python3 -m pip install -U cython
+# Update or install python tools
+sudo python3 -m pip install -U pip
+sudo python3 -m pip install -U cython
 
-  # Install guile >2.2 also install bdwgc for language-learning
-  install_guile
+# Install guile >2.2 also install bdwgc for language-learning
+install_guile
 }
 
 # Download data
@@ -1333,35 +1325,29 @@ write_live_media() {
 
 # This is mainly for configuring workspaces depending on the type
 # of project being worked on. The order here matters.
-if [ "$SELF_NAME" == "$TOOL_NAME" ]; then
-  if [ $UNKNOWN_FLAGS ]; then
-    usage
-    exit 1
-  fi
-  if [ $NO_ARGS ]; then
-    usage
-    exit 1
-  fi
-  if [ $ADD_REPOSITORIES ]; then add_repositories; fi
-  if [ $INSTALL_DEPENDENCIES ]; then install_dependencies; fi
-  if [ $DOWNLOAD_DATA ]; then download_data; fi
-  if [ $HASKELL_STACK_SETUP ]; then install_haskell_dependencies; fi
-  if [ $INSTALL_OPENCOG_PYTHON_PACKAGES ]; then install_opencog_python_packages; fi
-  if [ $INSTALL_COGUTIL ]; then install_cogutil; fi
-  if [ $INSTALL_ATOMSPACE ]; then install_atomspace; fi
-  if [ $INSTALL_COGSERVER ]; then install_cogserver; fi
-  if [ $INSTALL_NOTEBOOKS ]; then install_notebooks; fi
-  if [ $INSTALL_OPENCOG ]; then install_opencog; fi
-  if [ $INSTALL_LINK_GRAMMAR ]; then install_link_grammar; fi
-  if [ $INSTALL_JAVA_LINK_GRAMMAR ]; then install_link_grammar; fi
-  if [ $INSTALL_MOSES ]; then install_moses; fi
-  if [ $INSTALL_GUILE ]; then install_guile; fi
-  if [ $BUILD_SOURCE ]; then build_source; fi
-  if [ $INSTALL_NOTEBOOKS ]; then install_notebooks; fi
-  if [ $BUILD_EXAMPLES ]; then build_examples; fi
-  if [ $TEST_SOURCE ]; then test_source; fi
-  if [ $INSTALL_BUILD ]; then install_build; fi
-  exit 0
+if [ "$SELF_NAME" == "$TOOL_NAME" ] ; then
+    if [ $UNKNOWN_FLAGS ] ; then usage; exit 1 ; fi
+    if [ $NO_ARGS ] ; then usage; exit 1 ; fi
+    if [ $ADD_REPOSITORIES ] ; then add_repositories ; fi
+    if [ $INSTALL_DEPENDENCIES ] ; then install_dependencies ; fi
+    if [ $DOWNLOAD_DATA ] ; then download_data ; fi
+    if [ $HASKELL_STACK_SETUP ] ; then install_haskell_dependencies ; fi
+    if [ $INSTALL_OPENCOG_PYTHON_PACKAGES ] ; then install_opencog_python_packages ; fi
+    if [ $INSTALL_COGUTIL ] ; then install_cogutil ; fi
+    if [ $INSTALL_ATOMSPACE ] ; then install_atomspace ; fi
+    if [ $INSTALL_FROM_REPO ] ; then install_opencog_github_repo "$INSTALL_FROM_REPO" ; fi
+    if [ $INSTALL_NOTEBOOKS ] ; then install_notebooks ; fi
+    if [ $INSTALL_OPENCOG ] ; then install_opencog ; fi
+    if [ $INSTALL_LINK_GRAMMAR ] ; then install_link_grammar ; fi
+    if [ $INSTALL_JAVA_LINK_GRAMMAR ] ; then install_link_grammar ; fi
+    if [ $INSTALL_MOSES ] ; then install_moses ; fi
+    if [ $INSTALL_GUILE ] ; then install_guile ; fi
+    if [ $BUILD_SOURCE ] ; then build_source ; fi
+    if [ $INSTALL_NOTEBOOKS ] ; then install_notebooks ; fi
+    if [ $BUILD_EXAMPLES ] ; then build_examples ; fi
+    if [ $TEST_SOURCE ] ; then test_source ; fi
+    if [ $INSTALL_BUILD ] ; then install_build ; fi
+exit 0
 fi
 
 # option flag conditionals are finished, so set defaults
