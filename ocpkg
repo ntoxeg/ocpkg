@@ -881,13 +881,10 @@ install_atomspace() {
 install_opencog(){
 install_opencog_github_repo pln
 install_opencog_github_repo miner
-install_opencog_github_repo cogserver
-install_opencog_github_repo attention
 install_opencog_github_repo spacetime
-install_opencog_github_repo pattern-index
-install_opencog_github_repo visualization
-install_opencog_github_repo opencog
+install_opencog_github_repo attention
 install_opencog_github_repo learn
+install_opencog_github_repo opencog
 }
 
 # Install MOSES
@@ -909,7 +906,7 @@ else
       --sort=taggerdate | grep -v "\^"| tail -n 1 | cut -d "-" -f 3)
 fi
 wget https://github.com/opencog/link-grammar/archive/link-grammar-${_version}.tar.gz
-tar -zxf link-grammar-5*.tar.gz
+tar -zxf link-grammar-5.*.tar.gz
 cd link-grammar-link-grammar-5.*/
 ./autogen.sh --no-configure
 mkdir build
