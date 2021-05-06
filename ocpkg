@@ -642,14 +642,13 @@ install_opencog_github_repo() {
   cd ${REPO}-master/
   mkdir build
   cd build/
+  
   cmake ..
-  if [ $REPO != "ure" ]; then
-    make -j$(nproc)
-  else
-    make # for some reason URE compilation breaks with multiple jobs
-  fi
+  make -j$(nproc)
+
   sudo make install
   sudo ldconfig
+  
   cd /tmp/
   rm -rf master.tar.gz ${REPO}-master/
   cd $CURRENT_DIR
